@@ -471,38 +471,6 @@ export default function ProjectDetail({ onOpenTaskDetail, onOpenNewTask }: Proje
             );
           })}
         </div>
-      ) : (
-        /* STRUCTURED TABLE VIEW */
-        <div id="list-table-container" className="bg-white border rounded-2xl overflow-hidden shadow-xs">
-          <div className="overflow-x-auto">
-            <table className="w-full text-left border-collapse text-xs">
-              <thead className="bg-slate-50/50 border-b border-slate-100">
-                <tr>
-                  <th 
-                    onClick={() => handleSortToggle('title')}
-                    className="p-4 font-bold text-slate-500 uppercase tracking-wider text-[10px] select-none cursor-pointer hover:text-slate-800"
-                  >
-                    <div className="flex items-center gap-1">
-                      <span>Task Title</span>
-                      <ArrowUpDown className="h-3 w-3" />
-                    </div>
-                  </th>
-                  <th 
-                    onClick={() => handleSortToggle('status')}
-                    className="p-4 font-bold text-slate-500 uppercase tracking-wider text-[10px] select-none cursor-pointer hover:text-slate-800"
-                  >
-                    <div className="flex items-center gap-1">
-                      <span>Status</span>
-                      <ArrowUpDown className="h-3 w-3" />
-                    </div>
-                  </th>
-                  <th 
-                    onClick={() => handleSortToggle('priority')}
-                    className="p-4 font-bold text-slate-500 uppercase tracking-wider text-[10px] select-none cursor-pointer hover:text-slate-800"
-                  >
-                    <div className="flex items-center gap-1">
-                      <span>Priority</span>
-                      <ArrowUpDown className="h-3 w-3" />
                     </div>
                   </th>
                   <th className="p-4 font-bold text-slate-500 uppercase tracking-wider text-[10px]">
@@ -535,104 +503,14 @@ export default function ProjectDetail({ onOpenTaskDetail, onOpenNewTask }: Proje
                   </tr>
                 ) : (
                   sortedTasks.map(task => {
-                    const user = team.find(m => m.id === task.assigneeId);
-                    return (
-                      <tr 
-                        key={task.id}
-                        onClick={() => onOpenTaskDetail(task.id)}
-                        className="hover:bg-slate-50/50 transition cursor-pointer select-none"
-                      >
-                        {/* Task Name */}
-                        <td className="p-4">
-                          <span className="font-extrabold text-slate-800 text-xs block truncate max-w-xs">{task.title}</span>
-                          {task.description && (
-                            <span className="text-[11px] text-slate-400 truncate max-w-xs block font-normal mt-0.5">{task.description}</span>
-                          )}
-                        </td>
-
-                        {/* Status Badge */}
-                        <td className="p-4">
-                          <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 text-[10px] rounded-full font-bold capitalize border
-                            ${task.status === 'done' ? 'bg-emerald-50 border-emerald-100 text-emerald-800' : 
-                              task.status === 'review' ? 'bg-purple-50 border-purple-100 text-purple-800' : 
-                              task.status === 'in-progress' ? 'bg-blue-50 border-blue-100 text-blue-800' : 
-                              'bg-slate-50 border-slate-100 text-slate-700'
-                            }`}
-                          >
-                            <span className={`h-1.5 w-1.5 rounded-full
-                              ${task.status === 'done' ? 'bg-emerald-500' : 
-                                task.status === 'review' ? 'bg-purple-500' : 
-                                task.status === 'in-progress' ? 'bg-blue-500' : 'bg-slate-400'
-                              }`} 
-                            />
-                            {task.status.replace('-', ' ')}
-                          </span>
-                        </td>
-
-                        {/* Priority Badge */}
-                        <td className="p-4">
-                          <span className={`inline-flex items-center gap-1 text-[10px] font-bold px-2.5 py-0.5 rounded-md
-                            ${task.priority === 'high' ? 'bg-rose-50 border border-rose-100 text-rose-700' : 
-                              task.priority === 'medium' ? 'bg-amber-50 border border-amber-100 text-amber-700' : 
-                              'bg-blue-50 border border-blue-100 text-blue-700'
-                            }`}
-                          >
-                            {task.priority === 'high' ? '🔴 High' : task.priority === 'medium' ? '🟠 Medium' : '🔵 Low'}
-                          </span>
-                        </td>
-
-                        {/* Assignee Avatar row */}
-                        <td className="p-4">
-                          <div className="flex items-center gap-2">
-                            <div className="h-6 w-6 rounded-full bg-slate-100 text-slate-700 border font-extrabold flex items-center justify-center text-[9px] shrink-0">
-                              {user?.avatar || task.assignee.substring(0,2).toUpperCase()}
-                            </div>
-                            <span className="font-semibold text-slate-700 truncate text-[11px] max-w-[120px]">{task.assignee}</span>
-                          </div>
-                        </td>
-
-                        {/* Due Date */}
-                        <td className="p-4 text-slate-600 font-semibold text-[11px]">
-                          📅 {task.dueDate}
-                        </td>
-
-                        {/* Comments info */}
-                        <td className="p-4 text-right text-slate-450 font-bold font-mono">
-                          {task.commentsCount > 0 ? (
-                            <span className="inline-flex items-center gap-1 text-slate-705">
-                              <MessageSquare className="h-3 w-3" /> {task.commentsCount}
-                            </span>
-                          ) : '0'}
-                        </td>
-
-                        {/* Action buttons */}
-                        <td className="p-4 text-right">
-                          <div className="flex items-center justify-end gap-1.5" onClick={(e) => e.stopPropagation()}>
-                            <button
-                              onClick={() => onOpenTaskDetail(task.id)}
-                              className="p-1 text-slate-450 hover:text-blue-600 transition"
-                              title="Edit / View item"
-                            >
-                              <Edit className="h-3.5 w-3.5" />
-                            </button>
-                            <button
-                              onClick={(e) => handleQuickDelete(e, task.id)}
-                              className="p-1 text-slate-450 hover:text-rose-600 transition"
-                              title="Delete task item"
-                            >
-                              <Trash2 className="h-3.5 w-3.5" />
-                            </button>
-                          </div>
-                        </td>
-                      </tr>
-                    );
-                  })
-                )}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      )}
+      ) : (
+          <VirtualizedTaskList
+            tasks={sortedTasks}
+            team={team}
+            onOpenTaskDetail={onOpenTaskDetail}
+            projectId={projectId}
+          />
+        )}
     </div>
   );
 }

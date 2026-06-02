@@ -8,14 +8,15 @@ import { HashRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AppProvider, useApp } from './context/AppContext';
 
 // Pages
-import Login from './pages/Login';
-import Register from './pages/Register';
-import Dashboard from './pages/Dashboard';
-import ProjectList from './pages/ProjectList';
-import ProjectDetail from './pages/ProjectDetail';
-import TeamMembers from './pages/TeamMembers';
-import SettingsPage from './pages/Settings';
-import Insights from './pages/Insights';
+const Login = React.lazy(() => import('./pages/Login'));
+const Register = React.lazy(() => import('./pages/Register'));
+const Dashboard = React.lazy(() => import('./pages/Dashboard'));
+const ProjectList = React.lazy(() => import('./pages/ProjectList'));
+const ProjectDetail = React.lazy(() => import('./pages/ProjectDetail'));
+const TeamMembers = React.lazy(() => import('./pages/TeamMembers'));
+const SettingsPage = React.lazy(() => import('./pages/Settings'));
+const Insights = React.lazy(() => import('./pages/Insights'));
+
 
 // Components
 import Navigation from './components/Navigation';
@@ -84,39 +85,41 @@ function AppContent() {
 
   return (
     <Navigation onOpenNewTask={handleOpenNewTaskGlobal}>
-      <Routes>
-        <Route 
-          path="/" 
-          element={
-            <Dashboard 
-              onOpenTaskDetail={handleOpenTask} 
-              onOpenNewTask={handleOpenNewTaskGlobal} 
+        <React.Suspense fallback={<div className="flex items-center justify-center min-h-screen"><div className="text-sm text-slate-500">Loading…</div></div>}>
+          <Routes>
+            <Route 
+              path="/" 
+              element={
+                <Dashboard 
+                  onOpenTaskDetail={handleOpenTask} 
+                  onOpenNewTask={handleOpenNewTaskGlobal} 
+                />
+              } 
             />
-          } 
-        />
-        <Route 
-          path="/projects" 
-          element={
-            <ProjectList 
-              onOpenNewProject={handleOpenNewProject} 
-              onOpenEditProject={handleOpenEditProject} 
+            <Route 
+              path="/projects" 
+              element={
+                <ProjectList 
+                  onOpenNewProject={handleOpenNewProject} 
+                  onOpenEditProject={handleOpenEditProject} 
+                />
+              } 
             />
-          } 
-        />
-        <Route 
-          path="/project/:id" 
-          element={
-            <ProjectDetail 
-              onOpenTaskDetail={handleOpenTask} 
-              onOpenNewTask={handleOpenNewTaskProject} 
+            <Route 
+              path="/project/:id" 
+              element={
+                <ProjectDetail 
+                  onOpenTaskDetail={handleOpenTask} 
+                  onOpenNewTask={handleOpenNewTaskProject} 
+                />
+              } 
             />
-          } 
-        />
-        <Route path="/team" element={<TeamMembers />} />
-        <Route path="/insights" element={<Insights />} />
-        <Route path="/settings" element={<SettingsPage />} />
-        <Route path="*" element={<Navigate to="/" replace />} />
-      </Routes>
+            <Route path="/team" element={<TeamMembers />} />
+            <Route path="/insights" element={<Insights />} />
+            <Route path="/settings" element={<SettingsPage />} />
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </Routes>
+        </React.Suspense>
 
       {/* Global Toast Alerts */}
       <Toast />

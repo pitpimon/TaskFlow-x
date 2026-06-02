@@ -3,6 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+
 import React, { useState } from 'react';
 import { NavLink, useLocation, useNavigate } from 'react-router-dom';
 import { useApp } from '../context/AppContext';
@@ -18,7 +19,7 @@ interface NavigationProps {
   onOpenNewTask: () => void;
 }
 
-export default function Navigation({ children, onOpenNewTask }: NavigationProps) {
+function Navigation({ children, onOpenNewTask }: NavigationProps) {
   const { userProfile, logout, preferences, updatePreferences } = useApp();
   const theme = getTheme(preferences.theme);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -297,3 +298,5 @@ export default function Navigation({ children, onOpenNewTask }: NavigationProps)
     </div>
   );
 }
+
+export default React.memo(Navigation);
