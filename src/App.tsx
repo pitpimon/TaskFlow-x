@@ -15,6 +15,7 @@ import ProjectList from './pages/ProjectList';
 import ProjectDetail from './pages/ProjectDetail';
 import TeamMembers from './pages/TeamMembers';
 import SettingsPage from './pages/Settings';
+import Insights from './pages/Insights';
 
 // Components
 import Navigation from './components/Navigation';
@@ -112,6 +113,7 @@ function AppContent() {
           } 
         />
         <Route path="/team" element={<TeamMembers />} />
+        <Route path="/insights" element={<Insights />} />
         <Route path="/settings" element={<SettingsPage />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>

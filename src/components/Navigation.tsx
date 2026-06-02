@@ -10,7 +10,7 @@ import { getTheme, THEMES } from '../theme';
 import { Palette } from 'lucide-react';
 import { 
   LayoutDashboard, FolderKanban, Users, Settings, 
-  LogOut, Menu, X, PlusCircle, CheckSquare, Bell
+  LogOut, Menu, X, PlusCircle, CheckSquare, Bell, TrendingUp
 } from 'lucide-react';
 
 interface NavigationProps {
@@ -29,6 +29,7 @@ export default function Navigation({ children, onOpenNewTask }: NavigationProps)
     { name: 'Dashboard', path: '/', icon: LayoutDashboard },
     { name: 'Projects', path: '/projects', icon: FolderKanban },
     { name: 'Team Members', path: '/team', icon: Users },
+    { name: 'Performance Insights', path: '/insights', icon: TrendingUp },
     { name: 'Settings', path: '/settings', icon: Settings }
   ];
 
