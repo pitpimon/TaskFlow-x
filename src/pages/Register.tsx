@@ -9,7 +9,7 @@ import { useApp } from '../context/AppContext';
 import { CheckSquare, User, Mail, Lock, ShieldAlert, ArrowRight } from 'lucide-react';
 
 export default function Register() {
-  const { login } = useApp();
+  const { register } = useApp();
   const navigate = useNavigate();
 
   const [fullName, setFullName] = useState('');
@@ -22,7 +22,7 @@ export default function Register() {
     return /\S+@\S+\.\S+/.test(input);
   };
 
-  const handleRegisterSubmit = (e: React.FormEvent) => {
+  const handleRegisterSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMsg('');
 
@@ -51,9 +51,13 @@ export default function Register() {
       return;
     }
 
-    // On Register, automatically log in the newly registered profile to explore the applet
-    login(email.trim());
-    navigate('/');
+    try {
+      // On Register, automatically log in the newly registered profile to explore the applet
+      await register(fullName.trim(), email.trim(), password);
+      navigate('/');
+    } catch (err: any) {
+      setErrorMsg(err.message || 'Registration failed.');
+    }
   };
 
   return (

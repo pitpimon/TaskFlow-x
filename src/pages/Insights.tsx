@@ -3,9 +3,10 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { useApp } from '../context/AppContext';
 import { getTheme } from '../theme';
+import { apiRequest } from '../lib/api';
 import { 
   TrendingUp, CheckSquare, Clock, AlertCircle, Sparkles, 
   Users, Layers, Award, Terminal, Filter, Calendar, 
@@ -20,132 +21,82 @@ export default function Insights() {
   const [selectedUserId, setSelectedUserId] = useState<number>(1);
   const [hoveredData, setHoveredData] = useState<{ label: string; value: string | number; x: number; y: number } | null>(null);
 
+  // States loaded from API
+  const [stats, setStats] = useState<{
+    totalTasks: number;
+    completedTasksCount: number;
+    inProgressTasksCount: number;
+    reviewTasksCount: number;
+    todoTasksCount: number;
+    completionRate: number;
+    pendingCount: number;
+    efficiencyIndex: number;
+    summary: string;
+  } | null>(null);
+  const [timelineData, setTimelineData] = useState<any[]>([]);
+  const [workloadData, setWorkloadData] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+
+  // Synchronize selectedUserId with team list when it changes
+  useEffect(() => {
+    if (team.length > 0 && !team.some(m => m.id === selectedUserId)) {
+      setSelectedUserId(team[0].id);
+    }
+  }, [team, selectedUserId]);
+
+  // Fetch metrics and analytics from the backend API
+  useEffect(() => {
+    if (!selectedUserId) return;
+    
+    let active = true;
+    setIsLoading(true);
+
+    Promise.all([
+      apiRequest<any>(`/insights/stats?userId=${selectedUserId}`),
+      apiRequest<any[]>(`/insights/timeline?userId=${selectedUserId}`),
+      apiRequest<any[]>(`/insights/workload?userId=${selectedUserId}`)
+    ])
+      .then(([statsRes, timelineRes, workloadRes]) => {
+        if (active) {
+          setStats(statsRes);
+          setTimelineData(timelineRes);
+          setWorkloadData(workloadRes);
+          setIsLoading(false);
+        }
+      })
+      .catch((err) => {
+        console.error('Failed to load insights data:', err);
+        if (active) {
+          setIsLoading(false);
+        }
+      });
+
+    return () => {
+      active = false;
+    };
+  }, [selectedUserId, tasks, projects]);
+
   // Find the selected member details
   const currentMember = useMemo(() => {
     return team.find(m => m.id === selectedUserId) || team[0] || { id: 1, name: 'Alice Johnson', role: 'Product Manager', email: 'alice@example.com', avatar: 'AJ' };
   }, [team, selectedUserId]);
 
-  // Load all tasks associated with selected user
+  // Load all tasks associated with selected user (needed for local priority analysis in priority SVG)
   const userTasks = useMemo(() => {
     return tasks.filter(t => t.assigneeId === currentMember.id);
   }, [tasks, currentMember]);
 
-  // State metrics calculations
-  const totalTasks = userTasks.length;
-  const completedTasksCount = userTasks.filter(t => t.status === 'done').length;
-  const inProgressTasksCount = userTasks.filter(t => t.status === 'in-progress').length;
-  const reviewTasksCount = userTasks.filter(t => t.status === 'review').length;
-  const todoTasksCount = userTasks.filter(t => t.status === 'todo').length;
+  // Derived metrics from API stats with client fallback
+  const totalTasks = stats?.totalTasks ?? userTasks.length;
+  const completedTasksCount = stats?.completedTasksCount ?? userTasks.filter(t => t.status === 'done').length;
+  const inProgressTasksCount = stats?.inProgressTasksCount ?? userTasks.filter(t => t.status === 'in-progress').length;
+  const reviewTasksCount = stats?.reviewTasksCount ?? userTasks.filter(t => t.status === 'review').length;
+  const todoTasksCount = stats?.todoTasksCount ?? userTasks.filter(t => t.status === 'todo').length;
 
-  const completionRate = totalTasks > 0 ? Math.round((completedTasksCount / totalTasks) * 100) : 0;
-  const pendingCount = totalTasks - completedTasksCount;
-
-  // Efficiency index (High priority completion weights more)
-  const efficiencyIndex = useMemo(() => {
-    if (totalTasks === 0) return 0;
-    let score = 0;
-    let maxPossible = 0;
-    userTasks.forEach(t => {
-      const weight = t.priority === 'high' ? 30 : t.priority === 'medium' ? 20 : 10;
-      maxPossible += weight;
-      if (t.status === 'done') {
-        score += weight;
-      } else if (t.status === 'review') {
-        score += weight * 0.8; // partially completed weight
-      } else if (t.status === 'in-progress') {
-        score += weight * 0.5;
-      }
-    });
-    return maxPossible > 0 ? Math.round((score / maxPossible) * 100) : 0;
-  }, [userTasks, totalTasks]);
-
-  // Dynamic Insight Summary Generator (Interactive, Client-Side Synthesis)
-  const insightSummaryParagraph = useMemo(() => {
-    if (totalTasks === 0) {
-      return `${currentMember.name} has no tasks assigned in this workspace cycle. Use the task writer to allocate work items to start compiling performance reports.`;
-    }
-
-    const highPriorityTasks = userTasks.filter(t => t.priority === 'high');
-    const completedHigh = highPriorityTasks.filter(t => t.status === 'done').length;
-    const overDueSoon = userTasks.filter(t => t.status !== 'done' && new Date(t.dueDate) < new Date('2026-06-15'));
-
-    let synthesis = `Analyzing workspace trends for ${currentMember.name} (${currentMember.role}). `;
-    synthesis += `With ${completedTasksCount} of ${totalTasks} tasks resolved, they maintain a solid ${completionRate}% task-closure efficiency index. `;
-
-    if (highPriorityTasks.length > 0) {
-      if (completedHigh === highPriorityTasks.length) {
-        synthesis += `Critically, ${currentMember.name} has answered the sprint requirements flawlessly by resolving 100% of their ${highPriorityTasks.length} critical High Priority deliverables. `;
-      } else {
-        synthesis += `There are still ${highPriorityTasks.length - completedHigh} high-priority elements awaiting review/closure, which should remain the target of daily standalone sprints. `;
-      }
-    }
-
-    if (overDueSoon.length > 0) {
-      synthesis += `Additionally, ${overDueSoon.length} items are marked with nearing due thresholds in mid-June. Focus should pivot here to secure milestone reliability.`;
-    } else {
-      synthesis += `Overall timeline health looks healthy as all outstanding tasks reside comfortably inside normal timeline parameters.`;
-    }
-
-    return synthesis;
-  }, [userTasks, currentMember, totalTasks, completedTasksCount, completionRate]);
-
-  // 1. PROJECT WORKLOAD ALLOCATION DATAS
-  const workloadData = useMemo(() => {
-    const counts: { [projId: number]: { name: string; total: number; done: number; color: string } } = {};
-    
-    // Preset projects map
-    projects.forEach(p => {
-      counts[p.id] = { name: p.name, total: 0, done: 0, color: p.color };
-    });
-
-    userTasks.forEach(t => {
-      if (counts[t.projectId]) {
-        counts[t.projectId].total += 1;
-        if (t.status === 'done') {
-          counts[t.projectId].done += 1;
-        }
-      }
-    });
-
-    return Object.values(counts).filter(p => p.total > 0);
-  }, [projects, userTasks]);
-
-  // 2. TIMELINE VELOCITY GRADIENT (Tasks Due / Completed over Days of June 2026)
-  // We'll map standard calendar ticks: June 5, 10, 15, 20, 25, 30
-  const timelineData = useMemo(() => {
-    const ticks = [
-      { date: 'June 05', tasks: 0, done: 0 },
-      { date: 'June 10', tasks: 0, done: 0 },
-      { date: 'June 15', tasks: 0, done: 0 },
-      { date: 'June 20', tasks: 0, done: 0 },
-      { date: 'June 25', tasks: 0, done: 0 },
-      { date: 'June 30', tasks: 0, done: 0 }
-    ];
-
-    userTasks.forEach(t => {
-      try {
-        const day = parseInt(t.dueDate.split('-')[2]);
-        if (isNaN(day)) return;
-
-        let index = 0;
-        if (day <= 5) index = 0;
-        else if (day <= 10) index = 1;
-        else if (day <= 15) index = 2;
-        else if (day <= 20) index = 3;
-        else if (day <= 25) index = 4;
-        else index = 5;
-
-        ticks[index].tasks += 1;
-        if (t.status === 'done') {
-          ticks[index].done += 1;
-        }
-      } catch (e) {
-        // Safe wrap
-      }
-    });
-
-    return ticks;
-  }, [userTasks]);
+  const completionRate = stats?.completionRate ?? (totalTasks > 0 ? Math.round((completedTasksCount / totalTasks) * 100) : 0);
+  const pendingCount = stats?.pendingCount ?? (totalTasks - completedTasksCount);
+  const efficiencyIndex = stats?.efficiencyIndex ?? 0;
+  const insightSummaryParagraph = stats?.summary ?? 'Compiling performance report from workspace streams...';
 
   // Handle User Switching
   const handleSelectUser = (id: number) => {

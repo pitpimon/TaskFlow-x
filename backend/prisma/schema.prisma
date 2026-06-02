@@ -1,0 +1,98 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        Int      @id @default(autoincrement())
+  name      String
+  email     String   @unique
+  password  String                    // bcrypt hash
+  role      String   @default("Developer")
+  avatar    String                    // 2-letter initials, e.g. "AJ"
+  title     String   @default("")     // job title for profile
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  assignedTasks Task[]
+  comments      Comment[]
+  activities    Activity[]
+  preferences   UserPreferences?
+}
+
+model UserPreferences {
+  id                Int     @id @default(autoincrement())
+  userId            Int     @unique
+  theme             String  @default("light")
+  density           String  @default("comfortable")
+  notifyAssignments Boolean @default(true)
+  notifyReminders   Boolean @default(true)
+  notifyComments    Boolean @default(true)
+  notifyUpdates     Boolean @default(false)
+  defaultView       String  @default("board")
+  defaultSort       String  @default("dueDate")
+  showCompleted     Boolean @default(true)
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Project {
+  id          Int      @id @default(autoincrement())
+  name        String
+  description String   @default("")
+  color       String   @default("#3b82f6")
+  targetDate  String?                 // YYYY-MM-DD string
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  tasks Task[]
+}
+
+model Task {
+  id            Int      @id @default(autoincrement())
+  title         String
+  description   String   @default("")
+  status        String   @default("todo")    // todo|in-progress|review|done
+  priority      String   @default("medium")  // low|medium|high
+  dueDate       String                       // YYYY-MM-DD string
+  assigneeId    Int
+  projectId     Int
+  labels        String   @default("[]")      // JSON array string
+  commentsCount Int      @default(0)         // denormalized for performance
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  assignee User     @relation(fields: [assigneeId], references: [id])
+  project  Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  comments Comment[]
+
+  @@index([projectId])
+  @@index([assigneeId])
+  @@index([status])
+}
+
+model Comment {
+  id        Int      @id @default(autoincrement())
+  taskId    Int
+  userId    Int
+  message   String
+  createdAt DateTime @default(now())
+
+  task Task @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id])
+
+  @@index([taskId])
+}
+
+model Activity {
+  id        Int      @id @default(autoincrement())
+  text      String
+  userId    Int?
+  createdAt DateTime @default(now())
+
+  user User? @relation(fields: [userId], references: [id])
+}

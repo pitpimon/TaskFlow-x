@@ -21,7 +21,7 @@ export default function Login() {
     return /\S+@\S+\.\S+/.test(input);
   };
 
-  const handleLoginSubmit = (e: React.FormEvent) => {
+  const handleLoginSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMsg('');
 
@@ -42,14 +42,22 @@ export default function Login() {
       return;
     }
 
-    // Success login
-    login(email.trim());
-    navigate('/');
+    try {
+      // Success login
+      await login(email.trim(), password);
+      navigate('/');
+    } catch (err: any) {
+      setErrorMsg(err.message || 'Failed to authenticate session.');
+    }
   };
 
-  const handleGuestAccess = () => {
-    login('alice@example.com');
-    navigate('/');
+  const handleGuestAccess = async () => {
+    try {
+      await login('alice@example.com', 'password123');
+      navigate('/');
+    } catch (err: any) {
+      setErrorMsg(err.message || 'Failed to enter guest demo workspace.');
+    }
   };
 
   return (
