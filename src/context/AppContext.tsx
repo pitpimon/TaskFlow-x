@@ -59,6 +59,9 @@ interface AppContextType {
   
   // Log activity
   logActivity: (text: string) => void;
+
+  // Reset to mock data
+  resetMockData: () => void;
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -292,6 +295,26 @@ export function AppProvider({ children }: { children: ReactNode }) {
     logActivity(`User updated profile details. New Name: ${profile.name}`);
   };
 
+  // Reset to default mock data configurations
+  const resetMockData = () => {
+    localStorage.removeItem('taskflow_projects');
+    localStorage.removeItem('taskflow_tasks');
+    localStorage.removeItem('taskflow_team');
+    localStorage.removeItem('taskflow_comments');
+    localStorage.removeItem('taskflow_activities');
+    localStorage.removeItem('taskflow_user_profile');
+    
+    setProjects(INITIAL_PROJECTS);
+    setTeam(INITIAL_TEAM);
+    setTasks(INITIAL_TASKS);
+    setComments(INITIAL_COMMENTS);
+    setActivities(INITIAL_ACTIVITIES);
+    setUserProfile(DEFAULT_USER_PROFILE);
+    
+    addToast("Workspace re-seeded with 6 projects, 22 tasks, 6 test persona profiles, and activity logs!", 'success');
+    logActivity("Workspace state was re-seeded with default demo datasets.");
+  };
+
   return (
     <AppContext.Provider value={{
       projects,
@@ -322,7 +345,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
       
       updatePreferences,
       updateUserProfile,
-      logActivity
+      logActivity,
+      resetMockData
     }}>
       {children}
     </AppContext.Provider>
