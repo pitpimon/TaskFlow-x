@@ -48,6 +48,85 @@ TaskFlow-x/
 ├─ tsconfig.json
 └─ README.md
 ```
+## 🗄️ Database
+
+### Overview
+TaskFlow‑x uses **SQLite** as the default relational database, managed through **Prisma ORM**. The database file lives under `prisma/dev.db` (created automatically on first migration).
+
+### Prisma schema
+The schema is defined in `prisma/schema.prisma`. Key models include:
+
+```prisma
+model User {
+  id        Int      @id @default(autoincrement())
+  name      String
+  email     String   @unique
+  avatar    String?
+  // …
+  projects  Project[]
+  tasks     Task[]
+}
+
+model Project {
+  id          Int      @id @default(autoincrement())
+  name        String
+  description String?
+  color       String
+  // …
+  tasks       Task[]
+  ownerId     Int
+  owner       User     @relation(fields: [ownerId], references: [id])
+}
+
+model Task {
+  id          Int        @id @default(autoincrement())
+  title       String
+  description String?
+  status      TaskStatus @default(todo)
+  priority    TaskPriority @default(medium)
+  dueDate     DateTime?
+  assigneeId  Int?
+  assignee    User?      @relation(fields: [assigneeId], references: [id])
+  projectId   Int
+  project     Project    @relation(fields: [projectId], references: [id])
+}
+```
+
+### Environment variable
+Create a `.env` (or `.env.local`) with:
+
+```
+DATABASE_URL="file:./prisma/dev.db"
+```
+
+Prisma reads this variable at startup.
+
+### Migrations & generation
+```bash
+# Initialise the database and generate client
+npx prisma migrate dev --name init   # creates migration & dev.db
+npx prisma generate                 # generates @prisma/client
+```
+
+### Seeding (optional)
+A simple seed script is available:
+
+```bash
+npm run seed   # runs prisma/db/seed.ts to populate demo data
+```
+
+### Inspecting data
+```bash
+npx prisma studio   # opens a web UI to explore tables
+```
+
+### Resetting the database
+```bash
+npx prisma migrate reset   # drops and re‑creates dev.db
+```
+
+This section gives developers full control over the database lifecycle.
+
 
 ## 🚀 Getting Started
 
