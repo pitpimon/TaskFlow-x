@@ -646,6 +646,84 @@ export const INITIAL_TASKS: Task[] = [
     projectId: 6,
     commentsCount: 0,
     labels: ["Compliance", "Ops"]
+  },
+  {
+    id: 42,
+    title: "Review CSS utility-first performance audits",
+    description: "Benchmark first contentful paint when loading intricate bento grid widgets with varying animations count.",
+    status: "review",
+    priority: "high",
+    dueDate: "2026-06-11",
+    assignee: "Emma Watson",
+    assigneeId: 5,
+    projectId: 1,
+    commentsCount: 0,
+    labels: ["Performance", "CSS"]
+  },
+  {
+    id: 43,
+    title: "Draft release notes for App Store review",
+    description: "Compile critical list of features, fixes, and responsive layout improvements in Markdown.",
+    status: "review",
+    priority: "medium",
+    dueDate: "2026-06-15",
+    assignee: "Alice Johnson",
+    assigneeId: 1,
+    projectId: 2,
+    commentsCount: 0,
+    labels: ["Store", "Publishing"]
+  },
+  {
+    id: 44,
+    title: "Review marketing copy conversion funnels",
+    description: "Evaluate user click retention rates across standard, comfort, and compact density layout displays.",
+    status: "review",
+    priority: "medium",
+    dueDate: "2026-06-12",
+    assignee: "Alice Johnson",
+    assigneeId: 1,
+    projectId: 3,
+    commentsCount: 0,
+    labels: ["Marketing", "Copy"]
+  },
+  {
+    id: 45,
+    title: "Review multi-tenant compliance logs",
+    description: "Inspect system audit logs tracking transactional payload changes and encryption cycles.",
+    status: "review",
+    priority: "high",
+    dueDate: "2026-06-14",
+    assignee: "Daniel Green",
+    assigneeId: 4,
+    projectId: 4,
+    commentsCount: 0,
+    labels: ["Compliance"]
+  },
+  {
+    id: 46,
+    title: "Review master color contrast accessibility",
+    description: "Perform manual color checks seeking WCAG AAA compliance on all text blocks over active states.",
+    status: "review",
+    priority: "high",
+    dueDate: "2026-06-10",
+    assignee: "Carol Lee",
+    assigneeId: 3,
+    projectId: 5,
+    commentsCount: 0,
+    labels: ["Accessibility", "UI"]
+  },
+  {
+    id: 47,
+    title: "Verify database failover clustering drills",
+    description: "Induce simulated primary cluster failures and confirm multi-region backup systems initialize without manual intervention.",
+    status: "done",
+    priority: "high",
+    dueDate: "2026-06-05",
+    assignee: "Frank Miller",
+    assigneeId: 6,
+    projectId: 6,
+    commentsCount: 0,
+    labels: ["Database", "Ops"]
   }
 ];
 

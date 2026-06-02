@@ -311,7 +311,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     setActivities(INITIAL_ACTIVITIES);
     setUserProfile(DEFAULT_USER_PROFILE);
     
-    addToast("Workspace re-seeded with 6 projects, 22 tasks, 6 test persona profiles, and activity logs!", 'success');
+    addToast("Workspace re-seeded with 6 projects, 47 tasks, 6 test persona profiles, and activity logs!", 'success');
     logActivity("Workspace state was re-seeded with default demo datasets.");
   };
 
