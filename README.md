@@ -1,60 +1,105 @@
-<div align="center">
-<img width="1200" height="475" alt="GHBanner" src="https://ai.google.dev/static/site-assets/images/share-ais-513315318.png" />
-</div>
+# <p align="center"><img src="https://img.shields.io/badge/TaskFlow-x-1D4ED8?style=for-the-badge" alt="TaskFlow-x"/></p>
 
-# TaskFlow-x
+<p align="center">
+  <img src="https://img.shields.io/badge/Vite-0.0?style=for-the-badge&logo=vite&logoColor=white" alt="Vite"/>
+  <img src="https://img.shields.io/badge/React-18-0EA5E9?style=for-the-badge&logo=react&logoColor=white" alt="React 18"/>
+  <img src="https://img.shields.io/badge/TypeScript-5.0-3178C6?style=for-the-badge&logo=typescript&logoColor=white" alt="TypeScript"/>
+  <img src="https://img.shields.io/badge/Prisma-SQLite-7C3AED?style=for-the-badge&logo=prisma&logoColor=white" alt="Prisma SQLite"/>
+</p>
 
-**A modern, performant project‑management web app** built with Vite, React, TypeScript and an Express + Prisma backend.  It offers Kanban board and list views, rich filtering, drag‑and‑drop, virtualized task lists, lazy‑loaded pages and a responsive UI that feels fast even with thousands of tasks.
+<h1 align="center">🗺️ TaskFlow-x</h1>
 
-## 📋 Features
+<p align="center">
+  <strong>A modern, performant project‑management web app built with Vite, React, TypeScript and an Express + Prisma backend.</strong>
+  <br/>
+  Kanban board, list view, drag‑and‑drop, virtualized task rendering and lazy‑loaded pages for a smooth experience even with thousands of tasks.
+</p>
 
-- **Kanban board** with custom columns, drag‑and‑drop task movement
-- **List view** with full‑text search, priority/assignee/status filters
-- **Virtualized task rendering** via `react-window` for smooth scrolling of large datasets
-- **Code‑splitting** (`React.lazy` + `Suspense`) for reduced initial bundle size
-- **Responsive design** – works on desktop and mobile browsers
-- **Team management** – assign tasks, view avatars, comment counts
-- **Backend** powered by Express, SQLite & Prisma ORM
-- **Type‑safe** front‑end with TypeScript and strict linting
+<p align="center">
+  <a href="#-screenshots">Screenshots</a> •
+  <a href="#-quick-start">Quick Start</a> •
+  <a href="#-how-it-works">How It Works</a> •
+  <a href="#-database-schema">Database Schema</a> •
+  <a href="#-development">Development</a>
+</p>
 
-## 🛠️ Tech Stack
+---
+
+## 🤔 The Problem
+
+Managing projects in small‑to‑medium teams often suffers from:
+
+- **Fragmented UI** – separate tools for kanban, lists and reporting.
+- **Performance bottlenecks** – large task lists cause UI lag.
+- **Cold starts** – heavy bundles slow down first‑time loads.
+- **Manual data handling** – no built‑in persistence for tasks, users and teams.
+
+**TaskFlow‑x** brings those pieces together in a single, fast, and responsive web app.
+
+---
+
+## ✨ What TaskFlow‑x Adds
+
+| Capability | Without TaskFlow‑x | With TaskFlow‑x |
+|:---|:---|:---|
+| **Kanban board** | No visual workflow, manual status updates | Drag‑and‑drop board with live status changes |
+| **List view** | Simple tables, no virtualization | Virtualized scrolling for thousands of tasks |
+| **Code‑splitting** | Whole app loads at once | Lazy‑loaded pages, reduced initial bundle |
+| **Team management** | Flat JSON, no UI | Dedicated UI, avatars, role display |
+| **Persisted storage** | In‑memory only | SQLite database via Prisma |
+| **Responsive design** | Desktop‑only | Mobile‑friendly layout |
+
+---
+
+## 📸 Screenshots
+
+<p align="center">
+  <img src="docs/screenshots/kanban.png" alt="Kanban board" width="48%"/>
+  <img src="docs/screenshots/list.png" alt="List view with virtualization" width="48%"/>
+</p>
+
+---
+
+## 🏗️ Architecture
+
+<p align="center">
+  <img src="docs/architecture.svg" alt="TaskFlow‑x architecture diagram" width="100%"/>
+</p>
+
+### Stack
 
 | Layer | Technology |
-|------|------------|
-| Front‑end | Vite, React 18, TypeScript, lucide-react, react-window |
-| Styling | Tailwind CSS (utility‑first) & custom CSS for premium UI |
-| State Management | React Context (`src/context/AppContext.tsx`) |
-| Back‑end | Node.js, Express, SQLite, Prisma |
-| Testing | Vitest / React Testing Library (optional) |
-| Deployment | Runs locally; can be containerised with Docker |
+|:---|:---|
+| **Frontend** | Vite, React 18, TypeScript, Tailwind CSS, lucide‑react, react‑window |
+| **Backend** | Express, Prisma, SQLite |
+| **Testing** | Vitest + React Testing Library |
+| **Runtime** | Node.js (local) or Docker Compose |
 
-## 📁 Project Structure
+---
 
+## 🔄 How It Works
+
+### Seed & Migrate
+
+```bash
+# Initialise the database and generate the Prisma client
+npx prisma migrate dev --name init   # creates dev.db and migration files
+npx prisma generate                 # generates @prisma/client
 ```
-TaskFlow-x/
-├─ src/
-│  ├─ components/          # Reusable UI components (Navigation, VirtualizedTaskList, …)
-│  ├─ context/            # React context for global state
-│  ├─ pages/              # Page‑level components (Dashboard, ProjectDetail, …)
-│  ├─ types/              # TypeScript type definitions
-│  ├─ App.tsx              # Root component with lazy‑loaded routes
-│  └─ main.tsx             # Vite entry point
-├─ server/
-│  ├─ index.ts            # Express server entry
-│  └─ prisma/             # Prisma schema & migrations
-├─ public/                 # Static assets
-├─ .env.example            # Example environment variables
-├─ vite.config.ts
-├─ tsconfig.json
-└─ README.md
+
+### Development Server
+
+```bash
+npm run dev   # Vite dev server (frontend) + nodemon Express (backend) proxy
 ```
-## 🗄️ Database
 
-### Overview
-TaskFlow‑x uses **SQLite** as the default relational database, managed through **Prisma ORM**. The database file lives under `prisma/dev.db` (created automatically on first migration).
+The frontend calls the backend API (`/api/*`) which talks to the SQLite database via Prisma. Task data is loaded through React Context and displayed using either the Kanban board or the virtualized list component.
 
-### Prisma schema
-The schema is defined in `prisma/schema.prisma`. Key models include:
+---
+
+## 🗃️ Database Schema
+
+The Prisma schema lives in `prisma/schema.prisma`.
 
 ```prisma
 model User {
@@ -90,114 +135,100 @@ model Task {
   projectId   Int
   project     Project    @relation(fields: [projectId], references: [id])
 }
+
+enum TaskStatus {
+  todo
+  in_progress
+  review
+  done
+}
+
+enum TaskPriority {
+  low
+  medium
+  high
+}
 ```
 
 ### Environment variable
+
 Create a `.env` (or `.env.local`) with:
 
-```
+```env
 DATABASE_URL="file:./prisma/dev.db"
 ```
 
 Prisma reads this variable at startup.
 
-### Migrations & generation
-```bash
-# Initialise the database and generate client
-npx prisma migrate dev --name init   # creates migration & dev.db
-npx prisma generate                 # generates @prisma/client
-```
+---
 
-### Seeding (optional)
-A simple seed script is available:
-
-```bash
-npm run seed   # runs prisma/db/seed.ts to populate demo data
-```
-
-### Inspecting data
-```bash
-npx prisma studio   # opens a web UI to explore tables
-```
-
-### Resetting the database
-```bash
-npx prisma migrate reset   # drops and re‑creates dev.db
-```
-
-This section gives developers full control over the database lifecycle.
-
-
-## 🚀 Getting Started
+## 🚀 Quick Start
 
 ### Prerequisites
 
-- **Node.js** (>=18) and **npm** (>=9)
-- **SQLite** (bundled, no extra install required)
+- **Node.js** ≥ 18
+- **npm** ≥ 9
 
 ### Installation
 
 ```bash
-# Clone the repository
 git clone https://github.com/yourusername/TaskFlow-x.git
 cd TaskFlow-x
-
-# Install dependencies
 npm install
 ```
 
-### Configuration
-
-Create a local environment file:
+### Configure
 
 ```bash
 cp .env.example .env.local
+# Add any required keys (e.g., GEMINI_API_KEY if you use AI features)
 ```
 
-Add your Gemini API key (if you want AI‑Studio integration) and any other required variables:
-
-```
-GEMINI_API_KEY=your_gemini_api_key
-# Example: PORT=3001
-```
-
-### Running the App
+### Run the app
 
 ```bash
-# Development mode (frontend + backend)
 npm run dev
 ```
 
-Open <http://localhost:3000> in your browser. The Express API runs on port 3001 by default.
+Open <http://localhost:3000> – the Express API runs on port 3001 by default.
 
-### Building for Production
+### Build for production
 
 ```bash
-npm run build          # Front‑end production bundle
-npm start             # Serve the built app with the backend
+npm run build   # Vite production bundle
+npm start       # Serve with Node/Express
 ```
+
+---
 
 ## 📦 Scripts
 
 | Script | Description |
-|--------|-------------|
-| `dev` | Starts Vite dev server and Express backend in watch mode |
+|---|---|
+| `dev` | Starts Vite dev server and Express backend (watch mode) |
 | `build` | Generates a production‑ready Vite bundle |
-| `lint` | Runs ESLint + Prettier checks |
-| `test` | Executes unit tests (if present) |
+| `lint` | Runs ESLint + Prettier |
+| `test` | Executes unit tests |
+| `seed` | Runs Prisma seed script (if present) |
+
+---
 
 ## 🤝 Contributing
 
-Contributions are welcome! Please follow these steps:
+Contributions are welcome! Please:
 
 1. Fork the repository
 2. Create a feature branch (`git checkout -b feature/awesome-feature`)
-3. Make your changes and ensure lint & tests pass
+3. Ensure lint and tests pass
 4. Open a Pull Request describing your changes
+
+---
 
 ## 📄 License
 
-This project is licensed under the **Apache License 2.0** – see the `LICENSE` file for details.
+This project is licensed under the **Apache License 2.0** – see the `LICENSE` file for details.
+
+---
 
 ## 🙋‍♂️ Contact
 
@@ -205,4 +236,4 @@ Feel free to open an issue or reach out to the maintainer at `pitpi@example.com`
 
 ---
 
-Enjoy building fast, reliable task workflows with **TaskFlow-x**! 🚀
+Enjoy building fast, reliable task workflows with **TaskFlow‑x**! 🚀
